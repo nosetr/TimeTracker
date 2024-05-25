@@ -1,0 +1,12 @@
+server:
+  port: 8080
+  
+spring:
+  data:
+    rest:
+      base-path: /api
+  application:
+    name: TimeTracker
+    
+firebase:
+  key: ${FIREBASE_KEY}
