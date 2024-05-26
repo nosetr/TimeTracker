@@ -11,7 +11,6 @@ import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.WriteResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
-import com.google.firebase.auth.UserRecord;
 import com.google.firebase.auth.UserRecord.CreateRequest;
 import com.google.firebase.cloud.FirestoreClient;
 import com.nosetr.time.tracker.dto.ScoreDto;
@@ -28,15 +27,24 @@ public class UserServiceImpl implements UserService {
 	private final FirebaseAuth firebaseAuth;
 
 	@Override
-	public Mono<UserRecord> createUser(UserDto userDto) throws FirebaseAuthException {
+	public Mono<UserDto> createUser(UserDto userDto) throws FirebaseAuthException {
 
 		CreateRequest request = new CreateRequest();
 		request.setEmail(userDto.getEmail());
 		request.setPassword(userDto.getPassword());
 		request.setEmailVerified(Boolean.TRUE);
 
-		return Mono.just(firebaseAuth.createUser(request))
-				.onErrorResume(e -> Mono.error(e));
+		return Mono.fromCallable(() -> firebaseAuth.createUser(request))
+				.map(
+						userRecord -> new UserDto().toBuilder()
+								.id(userRecord.getUid())
+								.email(userRecord.getEmail())
+								.emailVerified(userRecord.isEmailVerified())
+								.build()
+				)
+				.onErrorMap(FirebaseAuthException.class, e -> {
+					return new RuntimeException("Failed to create user", e);
+				});
 	}
 
 	@Override

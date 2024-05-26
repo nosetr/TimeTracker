@@ -9,14 +9,18 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.google.firebase.auth.FirebaseAuthException;
 import com.nosetr.time.tracker.config.SecurityConfig.CustomPrincipal;
 import com.nosetr.time.tracker.dto.ScoreDto;
+import com.nosetr.time.tracker.dto.UserDto;
 import com.nosetr.time.tracker.service.UserService;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -29,6 +33,12 @@ public class UserController {
 		CustomPrincipal customPrincipal = (CustomPrincipal) authentication.getPrincipal();
 
 		return Mono.just(customPrincipal);
+	}
+	
+	@PostMapping("/register")
+	public Mono<UserDto> register(@RequestBody @NotNull UserDto userDto) throws FirebaseAuthException {
+		// Call registrations service
+		return userService.createUser(userDto);
 	}
 
 	@PostMapping("/vote")

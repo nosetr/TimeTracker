@@ -2,6 +2,7 @@ package com.nosetr.time.tracker.controller;
 
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 
 import org.apache.http.client.utils.URIBuilder;
 import org.junit.jupiter.api.Assertions;
@@ -23,6 +24,7 @@ import org.springframework.web.reactive.function.BodyInserters;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nosetr.time.tracker.config.SecurityConfig.CustomPrincipal;
 import com.nosetr.time.tracker.dto.ScoreDto;
+import com.nosetr.time.tracker.dto.UserDto;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,7 +39,7 @@ class UserControllerTest {
 
 	@Autowired
 	private ObjectMapper objectMapper;
-	
+
 	private static final String urlString = "/auth";
 	private static String bearer_token;
 	private static String userID;
@@ -52,11 +54,11 @@ class UserControllerTest {
 	private String firebaseEmail;
 	@Value("${firebase.password}")
 	private String firebasePassword;
-	
+
 	@BeforeEach
 	void setUp() {
 		Random random = new Random();
-    randomScore = random.nextInt(5) + 1; // between 1 and 5
+		randomScore = random.nextInt(5) + 1; // between 1 and 5
 	}
 
 	@Test
@@ -125,15 +127,15 @@ class UserControllerTest {
 	@Test
 	@Order(3)
 	void setScore_withoutAuth_withError() throws Exception {
-		
+
 		scoreDto = new ScoreDto();
 		scoreDto.setScore(randomScore);
 		scoreDto.setVoter(userID);
 		scoreDto.setUserId(userID);
 		scoreDto.setText("proba");
-		
+
 		String valueAsString = objectMapper.writeValueAsString(scoreDto);
-		
+
 		webTestClient.post()
 				.uri(urlString + "/vote")
 				.contentType(MediaType.APPLICATION_JSON)
@@ -148,9 +150,9 @@ class UserControllerTest {
 	@Test
 	@Order(4)
 	void setScoreToHimself_withAuth_withError() throws Exception {
-		
+
 		String valueAsString = objectMapper.writeValueAsString(scoreDto);
-		
+
 		webTestClient.post()
 				.uri(urlString + "/vote")
 				.header(HttpHeaders.AUTHORIZATION, bearer_token)
@@ -166,14 +168,43 @@ class UserControllerTest {
 	}
 
 	@Test
-	@Order(4)
+	@Order(5)
+	void createNewUser_withSuccess() throws Exception {
+		UserDto userDto = new UserDto();
+		userDto.setEmail((UUID.randomUUID() + "@user.com").substring(24));
+		userDto.setPassword(UUID.randomUUID().toString());
+
+		String valueAsString = objectMapper.writeValueAsString(userDto);
+
+		webTestClient.post()
+				.uri(urlString + "/register")
+				.header(HttpHeaders.AUTHORIZATION, bearer_token)
+				.contentType(MediaType.APPLICATION_JSON)
+				.body(
+						BodyInserters.fromValue(valueAsString)
+				)
+				.exchange()
+				.expectStatus()
+				.isOk()
+				.expectBody(UserDto.class)
+				.consumeWith(response -> {
+					UserDto newUser = response.getResponseBody();
+
+					Assertions.assertNotNull(newUser);
+
+					Assertions.assertEquals(newUser.getEmail(), userDto.getEmail());
+					Assertions.assertTrue(newUser.isEmailVerified());
+
+					scoreDto.setUserId(newUser.getId());
+				});
+	}
+
+	@Test
+	@Order(6)
 	void setScoreToAnotherUser_withAuth_withSuccess() throws Exception {
 
-		scoreDto.setUserId("myTestUserID");
-		log.info(scoreDto.toString());
-		
 		String valueAsString = objectMapper.writeValueAsString(scoreDto);
-		
+
 		webTestClient.post()
 				.uri(urlString + "/vote")
 				.header(HttpHeaders.AUTHORIZATION, bearer_token)
@@ -187,6 +218,5 @@ class UserControllerTest {
 				.expectBody(String.class)
 				.isEqualTo("Score successfully set.");
 	}
-	
-	
+
 }
