@@ -11,8 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ScoreDto {
 
-	private String id;
-	private String userId;
 	private String voter;
 	private Integer score;
 	private String text;

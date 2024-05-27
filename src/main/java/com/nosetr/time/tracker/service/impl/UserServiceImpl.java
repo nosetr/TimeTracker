@@ -1,19 +1,10 @@
 package com.nosetr.time.tracker.service.impl;
 
-import java.util.Date;
-import java.util.concurrent.ExecutionException;
-
 import org.springframework.stereotype.Service;
 
-import com.google.api.core.ApiFuture;
-import com.google.cloud.firestore.DocumentReference;
-import com.google.cloud.firestore.Firestore;
-import com.google.cloud.firestore.WriteResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.UserRecord.CreateRequest;
-import com.google.firebase.cloud.FirestoreClient;
-import com.nosetr.time.tracker.dto.ScoreDto;
 import com.nosetr.time.tracker.dto.UserDto;
 import com.nosetr.time.tracker.service.UserService;
 
@@ -47,20 +38,38 @@ public class UserServiceImpl implements UserService {
 				});
 	}
 
-	@Override
-	public Mono<Date> setScore(ScoreDto scoreDto) throws InterruptedException, ExecutionException {
-		Firestore firestore = FirestoreClient.getFirestore();
+	/////////////////////////////////////////////////////
 
-		DocumentReference reference = firestore.collection("user_scores")
-				.document();
-		scoreDto.setId(reference.getId());
-		ApiFuture<WriteResult> future = reference.set(scoreDto);
-
-		return Mono.just(
-				future.get()
-						.getUpdateTime()
-						.toDate()
-		);
-	}
-
+//	@Override
+//	public Mono<Date> setScore(ScoreDto scoreDto) throws InterruptedException, ExecutionException {
+//		Firestore firestore = FirestoreClient.getFirestore();
+//
+//		DocumentReference reference = firestore.collection("user_scores")
+//				.document();
+//		scoreDto.setId(reference.getId());
+//		ApiFuture<WriteResult> future = reference.set(scoreDto);
+//
+//		return Mono.just(
+//				future.get()
+//						.getUpdateTime()
+//						.toDate()
+//		);
+//	}
+//
+//	@Override
+//	public Mono<ApiFuture<QuerySnapshot>> getScoreByKey(String key, String value) {
+//
+//		Firestore firestore = FirestoreClient.getFirestore();
+//		//		ApiFuture<QuerySnapshot> apiFuture = firestore.collection("user_scores")
+//		//				.whereEqualTo(key, value)
+//		//				.limit(1)
+//		//				.get();
+//
+//		return Mono.fromCallable(
+//				() -> firestore.collection("user_scores")
+//						.whereEqualTo(key, value)
+//						.limit(1)
+//						.get()
+//		);
+//	}
 }
