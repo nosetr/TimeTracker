@@ -9,8 +9,4 @@ public interface UserService {
 	
 	Mono<UserDto> createUser(UserDto userDto) throws FirebaseAuthException;
 
-//	Mono<Date> setScore(ScoreDto scoreDto) throws InterruptedException, ExecutionException;
-//
-//	Mono<ApiFuture<QuerySnapshot>> getScoreByKey(String key, String value);
-
 }

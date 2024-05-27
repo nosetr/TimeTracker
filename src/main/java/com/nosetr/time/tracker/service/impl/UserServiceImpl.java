@@ -37,39 +37,4 @@ public class UserServiceImpl implements UserService {
 					return new RuntimeException("Failed to create user", e);
 				});
 	}
-
-	/////////////////////////////////////////////////////
-
-//	@Override
-//	public Mono<Date> setScore(ScoreDto scoreDto) throws InterruptedException, ExecutionException {
-//		Firestore firestore = FirestoreClient.getFirestore();
-//
-//		DocumentReference reference = firestore.collection("user_scores")
-//				.document();
-//		scoreDto.setId(reference.getId());
-//		ApiFuture<WriteResult> future = reference.set(scoreDto);
-//
-//		return Mono.just(
-//				future.get()
-//						.getUpdateTime()
-//						.toDate()
-//		);
-//	}
-//
-//	@Override
-//	public Mono<ApiFuture<QuerySnapshot>> getScoreByKey(String key, String value) {
-//
-//		Firestore firestore = FirestoreClient.getFirestore();
-//		//		ApiFuture<QuerySnapshot> apiFuture = firestore.collection("user_scores")
-//		//				.whereEqualTo(key, value)
-//		//				.limit(1)
-//		//				.get();
-//
-//		return Mono.fromCallable(
-//				() -> firestore.collection("user_scores")
-//						.whereEqualTo(key, value)
-//						.limit(1)
-//						.get()
-//		);
-//	}
 }

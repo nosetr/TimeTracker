@@ -13,13 +13,15 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 class UserRatingSchedulerTest {
 
 	@SpyBean
-  private UserRatingScheduler userRatingScheduler;
+	private UserRatingScheduler userRatingScheduler;
 
 	@Test
 	public void reportCurrentTime() {
-		Awaitility.await().atMost(Durations.TEN_SECONDS).untilAsserted(() -> {
-			verify(userRatingScheduler, atLeast(2)).updateTopUsers();
-		});
+		Awaitility.await()
+				.atMost(Durations.TEN_SECONDS)
+				.untilAsserted(() -> {
+					verify(userRatingScheduler, atLeast(2)).updateTopUsers();
+				});
 	}
 
 }
